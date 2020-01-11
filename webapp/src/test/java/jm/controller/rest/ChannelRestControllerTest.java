@@ -1,7 +1,11 @@
 package jm.controller.rest;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import jm.ChannelService;
+import jm.UserService;
+import jm.dto.ChannelDTO;
+import jm.dto.ChannelDtoService;
 import jm.model.Channel;
 import org.junit.Assert;
 import org.junit.Before;
@@ -14,6 +18,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -27,11 +32,16 @@ public class ChannelRestControllerTest {
     private static final String url = "/rest/api/channels/";
     @Mock
     private ChannelService channelService;
+//    @Mock
+//    private UserService userService;
+    @Mock
+    private ChannelDtoService channelDtoService;
 
     @InjectMocks
     ChannelRestController channelRestController;
 
     private MockMvc mockMvc;
+
 
     @Before
     public void setup() {
@@ -41,38 +51,47 @@ public class ChannelRestControllerTest {
     @Test
     public void getChannelById() throws Exception {
         Long testId1 = 1L;
-        final String getUrl = url;
+        final String getUrl = url + "{id}";
 
-        mockMvc.perform(get(getUrl + testId1))
+//        Long testId3 = 2L;
+        Channel channel = new Channel();
+        channel.setId(testId1);
+        channel.setName("test");
+        channel.setIsPrivate(true);
+
+        ChannelDTO channelDTO = new ChannelDTO(channel.getId(), channel.getName(), channel.getIsPrivate());
+
+        when(channelService.getChannelById(testId1)).thenReturn(channel);
+        mockMvc.perform(get(getUrl, testId1))
                 .andExpect(status().isOk());
         verify(channelService, times(1)).getChannelById(testId1);
 
         String testId2 = "something_text";
-        mockMvc.perform(get(getUrl + testId2))
+        mockMvc.perform(get(getUrl, testId2))
                 .andExpect(status().isBadRequest());
         verify(channelService, times(1)).getChannelById(any());
 
-        String testId3 = "something text";
-        mockMvc.perform(get(getUrl + testId3))
-                .andExpect(status().isBadRequest());
-        verify(channelService, times(1)).getChannelById(any());
+//        Long testId3 = 2L;
+//
+//         channel = new Channel();
+//        channel.setId(testId3);
+//        channel.setName("test");
+//        channel.setIsPrivate(true);
+////
+//         channelDTO = new ChannelDTO(channel.getId(), channel.getName(), channel.getIsPrivate());
 
+//        when(channelService.getChannelById(testId3)).thenReturn(channel);
+        when(channelDtoService.toDto(channel)).thenReturn(channelDTO);
 
-        Channel channel = new Channel();
-        channel.setId(2L);
-        channel.setName("test");
-
-        Long testId4 = 2L;
-        when(channelService.getChannelById(testId4)).thenReturn(channel);
-
-        MvcResult result = mockMvc.perform(get(getUrl + testId4))
+        MvcResult result = mockMvc.perform(get(getUrl, testId1))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(status().isOk())
                 .andReturn();
-        verify(channelService, times(1)).getChannelById(testId4);
+        verify(channelService, times(2)).getChannelById(testId1);
 
         Gson gson = new Gson();
-        Channel resultChannel = gson.fromJson(result.getResponse().getContentAsString(), Channel.class);
+//        Channel resultChannel = gson.fromJson(result.getResponse().getContentAsString(), Channel.class);
+        Channel resultChannel = TestUtils.jsonToObject(result.getResponse().getContentAsString(), Channel.class);
         Assert.assertEquals(channel.getId(), resultChannel.getId());
         Assert.assertEquals(channel.getName(), resultChannel.getName());
     }
@@ -127,7 +146,18 @@ public class ChannelRestControllerTest {
         Gson gson = new Gson();
         String jsonChannel;
 
+        Long testId1 = 1L;
+
         Channel channel = new Channel();
+        channel.setId(testId1);
+        channel.setName("test");
+        channel.setIsPrivate(true);
+//        Channel channel = new Channel();
+//        ChannelDTO channelDTO = new ChannelDTO(channel.getId(), channel.getName(), channel.getIsPrivate());
+
+        when(channelService.getChannelById(testId1)).thenReturn(channel);
+//        when(channelDtoService.toEntity(channelDTO)).thenReturn(channel);
+
         jsonChannel = gson.toJson(channel);
         mockMvc.perform(put(updateUrl)
                 .contentType(MediaType.APPLICATION_JSON)
