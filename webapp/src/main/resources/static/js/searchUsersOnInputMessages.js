@@ -49,7 +49,7 @@ const showAllUsers = (text) => {
 $('#associatedUserListSelect').on('change', function () {
     let str = "";
     // For multiple choice
-    $("select option:selected").each(function () {
+    $("#associatedUserListForm select option:selected").each(function () {
         users.push($(this).val());
         let text = $(this).text();
         if (text !== ' --') {
