@@ -133,6 +133,9 @@ document.addEventListener("mouseup", function (e) {
     }
 });
 
+export function clearUsers() {
+    users=[];
+}
 function cancelSearchAt() {
     modal.style.display = "none";
     isSearchUser = false;
