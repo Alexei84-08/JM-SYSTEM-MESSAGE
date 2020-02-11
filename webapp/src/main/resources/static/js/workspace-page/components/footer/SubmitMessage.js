@@ -2,9 +2,11 @@ import {
     WorkspaceRestPaginationService,
     UserRestPaginationService,
     ChannelRestPaginationService,
+    ChannelTopicRestPaginationService,
     MessageRestPaginationService,
     StorageService,
-    DirectMessagesRestController
+    DirectMessagesRestController,
+    SlashCommandRestPaginationService
 } from '/js/rest/entities-rest-pagination.js'
 import {FileUploader} from "../FileUploader.js";
 import {Command} from "./Command.js";
@@ -23,6 +25,7 @@ export class SubmitMessage {
         this.message_service = new MessageRestPaginationService();
         this.direct_message_service = new DirectMessagesRestController();
         this.storage_service = new StorageService();
+        this.slashCommandService = new SlashCommandRestPaginationService();
     }
 
     onAttachFileClick() {
@@ -39,14 +42,6 @@ export class SubmitMessage {
             event.preventDefault();
             const hasCommand = await this.checkCommand();
             if (!hasCommand) {
-
-                const content =  $("#form_message_input").val()
-                if (content.startsWith('/leave ')) {
-                    let channelName = content.substring(7)
-                    this.leaveChannel(channelName)
-                    $("#form_message_input").val("")
-                    return
-                }
 
                 const channel_name = sessionStorage.getItem("channelName");
                 const conversation_id = sessionStorage.getItem('conversation_id');
@@ -111,7 +106,39 @@ export class SubmitMessage {
             msg_id => sendName(msg_id)
         );
         clearUsers();
+        await this.sendSlashCommand(entity);
     }
+
+    async sendSlashCommand(entity) {
+        if (entity.content.startsWith("/")) {
+            const inputCommand = entity.content.slice(1,  entity.content.indexOf(" ") < 0 ? entity.content.length : entity.content.indexOf(" "));
+            window.currentCommands.forEach(command => {
+                if (command.name === inputCommand) {
+                    const sendCommand = {
+                        channelId: entity.channelId,
+                        userId: entity.userId,
+                        command: entity.content
+                    };
+                    if ((inputCommand === "topic") || inputCommand === "leave") {
+                        sendSlackBotCommand(sendCommand);
+                    } else {
+                        this.slashCommandService.sendSlashCommand(command.url, sendCommand).then(
+                        msg_id => {
+                            if (!msg_id == undefined){
+                                sendName(msg_id);
+                            }
+                        }
+                    )/*.then(() => {
+                        if (inputCommand === "topic") {
+                            document.getElementById("topic_string").textContent = "ololo";
+                        }
+                    })*/;}
+                }
+            });
+        }
+    }
+
+
 
     async sendDirectMessage(conversation_id) {
         await this.setUser();
