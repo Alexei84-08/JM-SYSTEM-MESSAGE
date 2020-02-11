@@ -11,10 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class TestDataInitializer {
@@ -255,10 +252,17 @@ public class TestDataInitializer {
         messageDAO.persist(message4);
         this.messages.add(message4);
 
+//        Message message_5 = new Message();
+//        message_5.setChannelId(channels.get(2).getId());
+//        message_5.setUser(userList.get(1));
+//        message_5.setContent("@channel hello everybody!");
+//        message_5.setDateCreate(LocalDateTime.now());
+
         Message message_5 = new Message();
-        message_5.setChannelId(channels.get(1).getId());
+        message_5.setChannelId(channels.get(2).getId());
         message_5.setUser(userList.get(1));
-        message_5.setContent("@channel hello everybody!");
+        message_5.setContent("@John hello everybody!");
+        message_5.setRecipientUsers(Collections.singleton(userService.getUserById(1L)));
         message_5.setDateCreate(LocalDateTime.now());
 
         messageDAO.persist(message_5);
