@@ -24,7 +24,6 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -77,8 +76,8 @@ public class MessageRestControllerTest {
         MessageDTO messageDTO1 = new MessageDTO(message1);
         MessageDTO messageDTO2 = new MessageDTO(message2);
 
-        when(messageServiceMock.getAllMessages()).thenReturn(messages);
-        when(messageDtoServiceMock.toDto(messages)).thenReturn(Arrays.asList(messageDTO1, messageDTO2));
+        Mockito.when(messageServiceMock.getAllMessages()).thenReturn(messages);
+        Mockito.when(messageDtoServiceMock.toDto(messages)).thenReturn(Arrays.asList(messageDTO1, messageDTO2));
 
         mockMvc.perform(get(URL))
                 .andExpect(status().isOk())
@@ -93,7 +92,7 @@ public class MessageRestControllerTest {
                 .andExpect(jsonPath("$[1].dateCreate", is("13.01.2020 13:56")))
                 .andExpect(jsonPath("$[1].channelId", is(messageDTO2.getChannelId().intValue())));
 
-        verify(messageServiceMock, times(1)).getAllMessages();
+        Mockito.verify(messageServiceMock, times(1)).getAllMessages();
         verifyNoMoreInteractions(messageServiceMock);
     }
 
@@ -112,8 +111,8 @@ public class MessageRestControllerTest {
 
         MessageDTO messageDTO1 = new MessageDTO(message1);
 
-        when(messageServiceMock.getMessageById(testId_1)).thenReturn(message1);
-        when(messageDtoServiceMock.toDto(message1)).thenReturn(messageDTO1);
+        Mockito.when(messageServiceMock.getMessageById(testId_1)).thenReturn(message1);
+        Mockito.when(messageDtoServiceMock.toDto(message1)).thenReturn(messageDTO1);
         mockMvc.perform(get(getUrl, testId_1))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
@@ -122,7 +121,7 @@ public class MessageRestControllerTest {
                 .andExpect(jsonPath("$.dateCreate", is("13.01.2020 13:53")))
                 .andExpect(jsonPath("$.channelId", is(messageDTO1.getChannelId().intValue())));
 
-        verify(messageServiceMock, times(1)).getMessageById(testId_1);
+        Mockito.verify(messageServiceMock, times(1)).getMessageById(testId_1);
         verifyNoMoreInteractions(messageServiceMock);
     }
 
@@ -144,8 +143,8 @@ public class MessageRestControllerTest {
 
         String messageDTOJson = ("{\"id\":1,\"userId\":3,\"botId\":3,\"content\":\"Hello_1\",\"dateCreate\":\"13.01.2020 16:57\",\"isDeleted\":false,\"channelId\":1}");
 
-        when(messageDtoServiceMock.toEntity(any(MessageDTO.class))).thenReturn(message1);
-        when(messageDtoServiceMock.toDto(any(Message.class))).thenReturn(messageDTO1);
+        Mockito.when(messageDtoServiceMock.toEntity(Mockito.any(MessageDTO.class))).thenReturn(message1);
+        Mockito.when(messageDtoServiceMock.toDto(Mockito.any(Message.class))).thenReturn(messageDTO1);
 
         mockMvc.perform(post(createUrl)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
@@ -158,7 +157,7 @@ public class MessageRestControllerTest {
                 .andExpect(jsonPath("$.dateCreate", is("13.01.2020 16:57")))
                 .andExpect(jsonPath("$.channelId", is(messageDTO1.getChannelId().intValue())));
 
-        verify(messageServiceMock, times(1)).createMessage(any());
+        Mockito.verify(messageServiceMock, times(1)).createMessage(Mockito.any());
         verifyNoMoreInteractions(messageServiceMock);
     }
 
@@ -200,17 +199,17 @@ public class MessageRestControllerTest {
 
         String messageDTOJson = ("{\"id\":1,\"userId\":3,\"botId\":3,\"content\":\"Hello_1\",\"dateCreate\":\"13.01.2020 16:57\",\"isDeleted\":false,\"channelId\":1}");
 
-        when(messageDtoServiceMock.toEntity(any(MessageDTO.class))).thenReturn(message1);
-        when(messageServiceMock.getMessageById(any())).thenReturn(message1);
-        when(principal.getName()).thenReturn("login_1");
-        when(messageDtoServiceMock.toDto(any(Message.class))).thenReturn(messageDTO1);
+        Mockito.when(messageDtoServiceMock.toEntity(Mockito.any(MessageDTO.class))).thenReturn(message1);
+        Mockito.when(messageServiceMock.getMessageById(Mockito.any())).thenReturn(message1);
+        Mockito.when(principal.getName()).thenReturn("login_1");
+        Mockito.when(messageDtoServiceMock.toDto(Mockito.any(Message.class))).thenReturn(messageDTO1);
 
         mockMvc.perform(put(updateUrl)
                 .principal(principal)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(messageDTOJson))
                 .andExpect(status().isOk());
-        verify(messageServiceMock, times(1)).updateMessage(any());
+        Mockito.verify(messageServiceMock, times(1)).updateMessage(Mockito.any());
     }
 
     @Test
@@ -232,10 +231,10 @@ public class MessageRestControllerTest {
 
         String messageDTOJson = ("{\"id\":1,\"userId\":3,\"botId\":3,\"content\":\"Hello_1\",\"dateCreate\":\"13.01.2020 16:57\",\"isDeleted\":false,\"channelId\":1}");
 
-        when(messageDtoServiceMock.toEntity(any(MessageDTO.class))).thenReturn(message1);
-        when(messageServiceMock.getMessageById(any())).thenReturn(message1);
-        when(principal.getName()).thenReturn("login_2");
-        when(messageDtoServiceMock.toDto(any(Message.class))).thenReturn(messageDTO1);
+        Mockito.when(messageDtoServiceMock.toEntity(Mockito.any(MessageDTO.class))).thenReturn(message1);
+        Mockito.when(messageServiceMock.getMessageById(Mockito.any())).thenReturn(message1);
+        Mockito.when(principal.getName()).thenReturn("login_2");
+        Mockito.when(messageDtoServiceMock.toDto(Mockito.any(Message.class))).thenReturn(messageDTO1);
 
         mockMvc.perform(put(updateUrl)
                 .principal(principal)
@@ -243,7 +242,7 @@ public class MessageRestControllerTest {
                 .content(messageDTOJson))
                 .andExpect(status().isForbidden());
 
-        when(messageServiceMock.getMessageById(any())).thenReturn(null);
+        Mockito.when(messageServiceMock.getMessageById(Mockito.any())).thenReturn(null);
         mockMvc.perform(put(updateUrl)
                 .principal(principal)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -273,7 +272,7 @@ public class MessageRestControllerTest {
         Long testId1 = 1L;
         mockMvc.perform(delete(deleteUrl, testId1))
                 .andExpect(status().isOk());
-        verify(messageServiceMock, Mockito.times(1)).deleteMessage(testId1);
+        Mockito.verify(messageServiceMock, Mockito.times(1)).deleteMessage(testId1);
         verifyNoMoreInteractions(messageServiceMock);
     }
 

@@ -1,10 +1,12 @@
 import {setOnClickEdit} from "/js/messagesInlineEdit.js";
 import {Command} from "/js/workspace-page/components/footer/Command.js";
 
-import { SubmitMessage } from "/js/workspace-page/components/footer/SubmitMessage.js"
+import {SubmitMessage} from "/js/workspace-page/components/footer/SubmitMessage.js"
+
+import {is_open, populateRightPaneActivity} from "/js/activities/view_activities.js";
+
 
 export class StompClient {
-
 
 
     constructor(channel_message_view, thread_view, direct_message_view, channel_view) {
@@ -60,6 +62,9 @@ export class StompClient {
                 }
             }
             notifyParseMessage(result);
+            if (is_open) {
+                populateRightPaneActivity();
+            }
         });
     }
 
@@ -71,14 +76,14 @@ export class StompClient {
                 if (window.channel_id == slackBot.channelId) {
                     $("#topic_string").text(slackBot.topic);
                 }
-            } else if (slackBot.command === "leave"){
+            } else if (slackBot.command === "leave") {
                 if (slackBot.userId == window.loggedUserId) {
                     //обновление списка каналов у пользователя, покинувшего канал
                     this.channelview.showAllChannels(window.choosedWorkspace); //нужно додумать как правильно определять, какой канал выбрать активным
-                    setTimeout(function() {
+                    setTimeout(function () {
                         window.pressChannelButton(window.channel_id);
-                    },1000);
-                } else if (window.channel_id == JSON.parse(slackBot.report).channelId){
+                    }, 1000);
+                } else if (window.channel_id == JSON.parse(slackBot.report).channelId) {
                     //сообщение в нужном канале других пользователей о том, что пользователь покинул канал
                     this.channel_message_view.createMessage(JSON.parse(slackBot.report));
                 }
@@ -87,9 +92,9 @@ export class StompClient {
                     //после успешной команды join у пользователя, отправившего эту команду добавляется и переключается канал
                     if (slackBot.userId == window.loggedUserId) {
                         this.channelview.showAllChannels(window.choosedWorkspace);
-                        setTimeout(function() {
+                        setTimeout(function () {
                             window.pressChannelButton(slackBot.channelId);
-                            },1000);
+                        }, 1000);
                     } else {
                         //у остальных пользователей в соответствующем канале отображается сообщение о том, что user joined to channel
                         let report = JSON.parse(slackBot.report);

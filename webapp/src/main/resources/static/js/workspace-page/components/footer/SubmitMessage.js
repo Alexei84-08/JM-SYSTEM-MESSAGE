@@ -11,6 +11,7 @@ import {
 import {FileUploader} from "../FileUploader.js";
 import {Command} from "./Command.js";
 import {users, clearUsers} from "/js/searchUsersOnInputMessages.js";
+// import {populateRightPaneActivity} from "/js/activities/view_activities.js";
 
 export class SubmitMessage {
     user;
@@ -106,6 +107,7 @@ export class SubmitMessage {
             msg_id => sendName(msg_id)
         );
         clearUsers();
+        // populateRightPaneActivity();
         await this.sendSlashCommand(entity);
     }
 
